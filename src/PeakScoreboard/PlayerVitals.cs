@@ -64,7 +64,8 @@ internal readonly struct PlayerVitals
     public float MaxStamina { get; }
 
     /// <summary>
-    /// Absolute free stamina on the full 0–1 PEAK bar (currentStamina × GetMaxStamina()).
+    /// Free stamina on the full 0–1 PEAK bar. Same units as the HUD:
+    /// <c>currentStamina</c> is already absolute (clamped to max), not a 0–1 fraction of max.
     /// </summary>
     public float AvailableStamina { get; }
 
@@ -97,6 +98,7 @@ internal readonly struct PlayerVitals
         float available = 0f;
         if (character.data != null)
         {
+            // HUD: desiredStaminaSize = currentStamina * fullBar.width (absolute 0–1).
             stamina = Mathf.Clamp01(character.data.currentStamina);
             extra = Mathf.Clamp01(character.data.extraStamina);
             try
@@ -108,7 +110,7 @@ internal readonly struct PlayerVitals
                 max = 1f;
             }
 
-            available = Mathf.Clamp01(stamina * max);
+            available = stamina;
         }
 
         return new PlayerVitals(isHost, stamina, extra, max, available, CaptureEffects(character));
