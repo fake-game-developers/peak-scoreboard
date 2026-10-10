@@ -46,55 +46,9 @@ Clients that want the scoreboard UI should install the mod. Respawn RPCs use PEA
 
 ## Extending from other mods
 
-PeakScoreboard exposes a small public API under `PeakScoreboard.Api`. Soft-depend on GUID `PeakScoreboard`, reference the DLL, and register columns or row buttons from your plugin `Awake`.
+Other mods can register custom columns and row buttons via `PeakScoreboard.Api.ScoreboardApi` (plugin GUID `PeakScoreboard`). Soft-depend on that GUID, reference `PeakScoreboard.dll`, and call `RegisterColumn` / `RegisterAction` from your plugin startup. See the types under `src/PeakScoreboard/Api/` for the full surface.
 
-```csharp
-using BepInEx;
-using PeakScoreboard.Api;
-using UnityEngine;
-
-[BepInPlugin("MyTeam.MyMod", "MyMod", "1.0.0")]
-[BepInDependency(ScoreboardApi.PluginGuid, BepInDependency.DependencyFlags.SoftDependency)]
-public class MyPlugin : BaseUnityPlugin
-{
-    private ScoreboardRegistration? _column;
-
-    private void Awake()
-    {
-        if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(ScoreboardApi.PluginGuid))
-        {
-            return;
-        }
-
-        _column = ScoreboardApi.RegisterColumn(new ScoreboardColumn(
-            id: "MyMod.Beans",
-            header: "Beans",
-            getValue: player => GetBeanCount(player.ActorId).ToString())
-        {
-            Order = 10,
-            Alignment = ScoreboardTextAlign.Center,
-            GetColor = player => player.IsDead ? Color.gray : null,
-        });
-
-        ScoreboardApi.RegisterAction(new ScoreboardRowAction(
-            id: "MyMod.Ping",
-            label: "Ping",
-            onClick: player => Logger.LogInfo($"Ping {player.Name}"))
-        {
-            IsVisible = player => !player.IsLocal,
-        });
-    }
-
-    private void OnDestroy() => _column?.Dispose();
-
-    private static int GetBeanCount(int actorId) => actorId; // your data
-}
-```
-
-- **Columns** — text cells with optional color, order, and width weight
-- **Actions** — buttons next to Respawn; gate with `IsVisible` / `IsEnabled`
-- Registrations persist across UI rebuilds; dispose the handle (or call `Unregister*`) to remove them
-- Value getters run while the board is open (~4 times per second) — keep them cheap
+Thunderstore packages use [`THUNDERSTORE.md`](THUNDERSTORE.md) as the storefront readme (no developer docs).
 
 ## Build
 
