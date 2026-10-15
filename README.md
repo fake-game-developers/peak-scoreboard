@@ -50,6 +50,15 @@ Other mods can register custom columns and row buttons via `PeakScoreboard.Api.S
 
 Thunderstore packages use [`THUNDERSTORE.md`](THUNDERSTORE.md) as the storefront readme (no developer docs).
 
+## Thunderstore packaging (CI)
+
+Every push to `master` runs [.github/workflows/thunderstore.yml](.github/workflows/thunderstore.yml):
+
+1. Builds a Thunderstore ZIP (using [FakeGameDevelopers.PEAKGameLibs](https://github.com/fake-game-developers/PEAKGameLibs) stripped refs for compile references)
+2. Uploads a workflow artifact named **`FakeGameDevelopers-PeakScoreboard`**
+
+Publish runs when `<Version>` in `src/PeakScoreboard/PeakScoreboard.csproj` is not yet the live Thunderstore release (including the first upload), and the organization secret `TCLI_AUTH_TOKEN` is set.
+
 ## Build
 
 Requires [PEAK](https://store.steampowered.com/app/3527290/PEAK/) installed (auto-detected under common Steam paths), or set `PEAK_GAME_DIR` / `-p:PeakGameRootDir=`.
@@ -59,6 +68,8 @@ dotnet build -c Release
 ```
 
 Optional deploy: `-p:DeployToPeak=true -p:PeakPluginsDir="/path/to/BepInEx/plugins/PeakScoreboard"`
+
+Package only: `dotnet build -c Release -target:PackTS` → `artifacts/thunderstore/`
 
 ## License
 
